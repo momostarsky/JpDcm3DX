@@ -32,7 +32,7 @@ set(Teem_DIR "/opt/teem/lib")
 include(FindTeem)
 find_package(Teem REQUIRED)
 message(STATUS  "Teem_INCLUDE_DIRS:${Teem_INCLUDE_DIRS}")
-message(STATUS  "Teem_USE_FILE:${Teem_USE_FILE}")
+#message(STATUS  "Teem_USE_FILE:${Teem_USE_FILE}")
 message(STATUS  "Teem_LIBRARIES:${Teem_LIBRARIES}")
 
 #
@@ -51,9 +51,24 @@ set(LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${CMAKE_CURRENT_SOURCE_DIR}/vtkTeem")
 include_directories(${vtkTeem_INCLUDE_DIRS})
 
 
+add_subdirectory(ITKFactoryRegistration)
+set(LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${CMAKE_CURRENT_SOURCE_DIR}/ITKFactoryRegistration")
+include_directories(${ITKFactoryRegistration_INCLUDE_DIRS})
+
+add_subdirectory(vtkITK)
+set(LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${CMAKE_CURRENT_SOURCE_DIR}/vtkITK")
+include_directories(${vtkITK_INCLUDE_DIRS})
+
+add_subdirectory(vtkSegmentationCore)
+set(LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${CMAKE_CURRENT_SOURCE_DIR}/vtkSegmentationCore")
+include_directories(${vtkSegmentationCore_INCLUDE_DIRS})
+
 
 # Set your files and resources here
-set(SRCS QtVTKRenderWindowsApp.cxx)
+set(SRCS QtVTKRenderWindowsApp.cxx
+        BaseHeader.h
+        vtkHelper/vtkHelper.cpp
+        vtkHelper/vtkHelper.h)
 
 
 # CMAKE_AUTOMOC in ON so the MocHEADERS will be automatically wrapped.
@@ -62,7 +77,9 @@ add_executable(JpDcm3DX  ${SRCS})
 target_include_directories(JpDcm3DX PUBLIC ${ITK_INCLUDE_DIRS}   ${Teem_INCLUDE_DIRS})
 message(STATUS "ITK Libs :${${PROJECT_NAME}_ITK_COMPONENTS}")
 target_link_libraries(JpDcm3DX
-  PRIVATE   "Qt5::Widgets"   ${VTK_LIBRARIES} ${VTKm_LIBRARIES}   ${ITK_LIBRARIES} ${Teem_LIBRARIES} vtkAddon vtkTeem)
+  PRIVATE   "Qt5::Widgets"
+        ${VTK_LIBRARIES} ${VTKm_LIBRARIES}   ${ITK_LIBRARIES} ${Teem_LIBRARIES}
+        vtkAddon vtkTeem  ITKFactoryRegistration  vtkITK vtkSegmentationCore)
 vtk_module_autoinit(
   TARGETS JpDcm3DX
   MODULES ${VTK_LIBRARIES} )
