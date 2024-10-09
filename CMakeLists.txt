@@ -88,6 +88,8 @@ set(SRCS ViewerApp.cxx
         QtDcmViewer.cpp
         QtDcmViewer.h
         QtDcmViewer.ui
+        DicomLoader.cpp
+        DicomLoader.h
 
 )
 

@@ -7,6 +7,7 @@
 #include <itkFactoryRegistration.h>
 #include "BaseHeader.h"
 #include "QtDcmViewer.h"
+#include "vtkHelper/vtkHelper.h"
 
 int main(int argc, char **argv) {
 
@@ -16,6 +17,7 @@ int main(int argc, char **argv) {
     vtkLogger::LogToFile("everything.log", vtkLogger::APPEND, vtkLogger::VERBOSITY_MAX);
     // needed to ensure appropriate OpenGL context is created for VTK rendering.
     QSurfaceFormat::setDefaultFormat(QVTKOpenGLNativeWidget::defaultFormat());
+//    vtkHelper::ReaderDicomImagesITKVTK("/home/dhz/v4486");
     // QT Stuff
     QApplication app(argc, argv);
 
