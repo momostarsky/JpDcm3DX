@@ -70,11 +70,7 @@ void QtDcmViewer::Init() {
         mPlaneWidget[i]->SetTexturePlaneProperty(mPlaneProperty);
         mPlaneWidget[i]->SetDefaultRenderer(mPlaneRender);
 
-        // Make them all share the same color map.
-        mResliceViewer[i]->SetLookupTable(mResliceViewer[0]->GetLookupTable());
-        mPlaneWidget[i]->GetColorMap()->SetLookupTable(mResliceViewer[0]->GetLookupTable());
-        mPlaneWidget[i]->SetColorMap(mResliceViewer[i]->GetResliceCursorWidget()
-                                             ->GetResliceCursorRepresentation()->GetColorMap());
+
     }
 
 
@@ -113,6 +109,12 @@ void QtDcmViewer::Init() {
         }
 
         for (int i = 0; i < 3; ++i) {
+            // Make them all share the same color map.
+            mResliceViewer[i]->SetLookupTable(mResliceViewer[0]->GetLookupTable());
+            mPlaneWidget[i]->GetColorMap()->SetLookupTable(mResliceViewer[0]->GetLookupTable());
+            mPlaneWidget[i]->SetColorMap(mResliceViewer[i]->GetResliceCursorWidget()
+                                                 ->GetResliceCursorRepresentation()->GetColorMap());
+
             mResliceViewer[i]->GetRenderer()->ResetCamera();
             mResliceRenderWin[i]->Render();
         }
