@@ -207,9 +207,27 @@ void DicomLoader::LoadDicom(const char *path) {
     }
     RescaleSlope = reader->GetRescaleSlope();
     RescaleOffset = reader->GetRescaleOffset();
-    reader->PrintSelf(std::cout, vtkIndent(2));
-
     vtkHelper::Print2Numbs(RescaleSlope, RescaleOffset, "Rescale");
+    {
+        // generate the matrix
+
+
+        float *xdir = &ImageOrientationPatient[0];
+        float *ydir = &ImageOrientationPatient[3];
+        float zdir[3];
+        vtkMath::Cross(xdir, ydir, zdir);
+
+        userMatrix =  vtkSmartPointer<vtkMatrix4x4>::New();
+        for (int i = 0; i < 3; i++)
+        {
+            userMatrix->Element[i][0] = xdir[i];
+            userMatrix->Element[i][1] = ydir[i];
+            userMatrix->Element[i][2] = zdir[i];
+            userMatrix->Element[i][3] = ImagePositionPatient[i];
+        }
+        vtkHelper::PrintMatrix4X4(userMatrix, "userMatrix");
+    }
+
     vtkSmartPointer<vtkDICOMReader> DICOMreader = vtkSmartPointer<vtkDICOMReader>::New();
     DICOMreader->SetDataByteOrderToLittleEndian();
     DICOMreader->SetMemoryRowOrderToFileNative();
@@ -240,7 +258,11 @@ void DicomLoader::LoadDicom(const char *path) {
     m_imageData->GetDimensions(this->Dimension);
     m_imageData->GetSpacing(this->Spacing);
     m_imageData->GetOrigin(this->Origin);
-    m_imageData->PrintSelf(std::cout, vtkIndent(2));
+    m_imageData->GetExtent(this->Extent);
+
+
+
+
 
 
 }

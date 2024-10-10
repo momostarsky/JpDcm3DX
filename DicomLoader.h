@@ -37,6 +37,10 @@ public:
         return &Dimension[0];
     }
 
+    [[nodiscard]] const int *GetExtent() const {
+        return &Extent[0];
+    }
+
     [[nodiscard]] const float *GetImagePositionPatient() const {
         return &ImagePositionPatient[0];
     }
@@ -48,9 +52,13 @@ public:
     [[nodiscard]] vtkSmartPointer<vtkMatrix4x4> GetPatientMatrix() const {
         return PatientMatrix;
     }
+    [[nodiscard]] vtkSmartPointer<vtkMatrix4x4> GetUserMatrix() const {
+        return userMatrix;
+    }
     [[nodiscard]] vtkSmartPointer<vtkMedicalImageProperties> GetMedicalImageProperties() const {
         return ImageProperties;
     }
+
 private:
 
     vtkSmartPointer<vtkImageData> m_imageData{};
@@ -70,11 +78,12 @@ private:
     double Origin[3] = {0};
     double Spacing[3] = {0};
     int Dimension[3] = {0};
+    int Extent[6] = {0};
     float ImagePositionPatient[3] = {0};
     float ImageOrientationPatient[3] = {0};
     vtkSmartPointer<vtkMatrix4x4> PatientMatrix{};
-    vtkSmartPointer<vtkMedicalImageProperties>  ImageProperties{};
-
+    vtkSmartPointer<vtkMedicalImageProperties> ImageProperties{};
+    vtkSmartPointer<vtkMatrix4x4> userMatrix{};
 };
 
 
