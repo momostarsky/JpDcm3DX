@@ -70,7 +70,7 @@
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="btnLoadDicom">
          <property name="text">
           <string>PushButton</string>
          </property>

@@ -84,6 +84,9 @@
 #include <vtkDistanceWidget.h>
 #include <vtkSmartPointer.h>
 #include <vtkCellPicker.h>
+#include <vtkTextActor.h>
+#include <vtkCornerAnnotation.h>
+#include <vtkMedicalImageProperties.h>
 
 #include <itkImage.h>
 #include <itkGDCMImageIO.h>
@@ -95,7 +98,8 @@
 #include <itkImageFileWriter.h>
 #include <SimpleITK.h>
 #include <sitkImageOperators.h>
-
+#include <iostream>
+using namespace std;
 namespace sitk = itk::simple;
 
 #endif //JPDCM3DX_BASEHEADER_H

@@ -23,16 +23,21 @@ public:
         vtkLogF(INFO, "#End %s", flagName);
     }
 
-    // 模板函数，用于打印任意类型的数组
     template<typename T>
-    static void PrintArray(const T *arr, int arrSize) {
-        for (int i = 0; i < arrSize; ++i) {
-            std::cout << arr[i] << ' ';
-        }
-        std::cout << std::endl;
+    static void Print2Numbs(const T n1, const T n2, const char *flagName) {
+        std::cout << flagName << "#: " << n1 << "," << n2 << std::endl;
     }
 
-    static vtkImageData*  ReaderDicomImagesITKVTK(const char *folder );
+    // 模板函数，用于打印任意类型的数组
+    template<typename T>
+    static void PrintArray3(const T *arr, const char *flagName) {
+        std::cout << flagName << "#: " << arr[0] << "," << arr[1] << "," << arr[2] << std::endl;
+
+    }
+
+
+    static vtkImageData *ReaderDicomImagesITKVTK(const char *folder);
+
 private:
     vtkHelper() = default;
 

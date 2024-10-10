@@ -145,8 +145,8 @@ vtkImageData * vtkHelper::ReaderDicomImagesITKVTK(const char *folder ) {
 
 //    vtkSmartPointer<vtkImageMapToWindowLevelColors> imgToColors = vtkSmartPointer<vtkImageMapToWindowLevelColors>::New();
 //    imgToColors->SetInputData(imageflip->GetOutput());
-//    imgToColors->SetLevel(ColorLevel);
-//    imgToColors->SetWindow(ColorWindow);
+//    imgToColors->SetLevel(WindowCenter);
+//    imgToColors->SetWindow(WindowWidth);
 //    imgToColors->Update();
 //
 //

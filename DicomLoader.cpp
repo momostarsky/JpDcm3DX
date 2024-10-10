@@ -2,11 +2,13 @@
 // Created by dhz on 24-10-9.
 //
 
+#include <itkVTKImageToImageFilter.h>
 #include "DicomLoader.h"
+#include "../vtkHelper/vtkHelper.h"
 
 DicomLoader::~DicomLoader() = default;
 
-void DicomLoader::LoadDicom(const char *path) {
+void DicomLoader::LoadDicomWithITK(const char *path) {
     using PixelType = signed short;
     using ImageType3D = itk::Image<PixelType, 3>;
     using ImageIoType = itk::GDCMImageIO;
@@ -68,7 +70,7 @@ void DicomLoader::LoadDicom(const char *path) {
                 dynamic_cast<const MetaDataStringType *> (tagItr->second.GetPointer());
         if (entryvalue) {
             std::string tagvalue = entryvalue->GetMetaDataObjectValue();
-            ColorLevel = stod(tagvalue);
+            WindowCenter = stod(tagvalue);
         }
     }
 
@@ -79,7 +81,7 @@ void DicomLoader::LoadDicom(const char *path) {
                 dynamic_cast<const MetaDataStringType *> (tagItr->second.GetPointer());
         if (entryvalue) {
             std::string tagvalue = entryvalue->GetMetaDataObjectValue();
-            ColorWindow = stod(tagvalue);
+            WindowWidth = stod(tagvalue);
         }
     }
 
@@ -122,13 +124,18 @@ void DicomLoader::LoadDicom(const char *path) {
     imageflip->SetFilteredAxes(1);////y轴为1，x轴为0，z轴为2；
     imageflip->Update();
 
+//    vtkSmartPointer<vtkImageFlip> imageflip2 = vtkSmartPointer<vtkImageFlip>::New();
+//    imageflip2->SetInputData(imageflip->GetOutput());
+//    imageflip2->SetFilteredAxes(1);////y轴为1，x轴为0，z轴为2；
+//    imageflip2->Update();
+
     m_imageData = imageflip->GetOutput();
     m_imageData->GetDimensions(this->Dimension);
 
-    double temp[3];
-    m_imageData->GetOrigin(temp);
+//    double temp[3];
+//    m_imageData->GetOrigin(temp);
     m_imageData->GetSpacing(this->Spacing);
-    m_imageData->SetOrigin(-temp[0], -temp[1], temp[2]);
+//    m_imageData->SetOrigin(-temp[0], -temp[1], temp[2]);
     m_imageData->GetOrigin(this->Origin);
 
 }
@@ -142,9 +149,98 @@ vtkSmartPointer<vtkImageData> DicomLoader::GetImageData() const {
 }
 
 double DicomLoader::GetColorLevel() const {
-    return ColorLevel;
+    return WindowCenter;
 }
 
 double DicomLoader::GetColorWindow() const {
-    return ColorWindow;
+    return WindowWidth;
+}
+
+void DicomLoader::LoadDicom(const char *path) {
+    std::cout << "Load DICOM With DICOMImageReader" << std::endl;
+
+    vtkSmartPointer<vtkDICOMDirectory> dicomdir = vtkSmartPointer<vtkDICOMDirectory>::New();
+    dicomdir->SetDirectoryName(path);
+    dicomdir->SetScanDepth(3);     //检索文件夹深度
+    dicomdir->IgnoreDicomdirOn();  //忽略索引文件
+    dicomdir->RequirePixelDataOn();//忽略没有像素数据的文件
+    dicomdir->ShowHiddenOff();     //忽略隐藏文件
+    dicomdir->Update();
+    int n = dicomdir->GetNumberOfSeries();
+    if (n == 0) {
+        std::cerr << "No DICOM images in directory!" << std::endl;
+        return;
+    }
+
+
+    int firstStudy = 0;
+    // Get information related to the patient study
+    vtkDICOMItem patient = dicomdir->GetPatientRecordForStudy(firstStudy);
+    vtkDICOMItem study = dicomdir->GetStudyRecord(firstStudy);
+
+
+    // Iterate through all the series in this study.
+    int j1 = dicomdir->GetFirstSeriesForStudy(firstStudy);
+    //  int j2 = dicomdir->GetLastSeriesForStudy(i);
+    // get some of the series attributes as a vtkDICOMItem
+    vtkDICOMItem series = dicomdir->GetSeriesRecord(j1);
+    // get all the files in the series
+    vtkStringArray *sortedFiles = dicomdir->GetFileNamesForSeries(j1);
+    vtkIdType nf = sortedFiles->GetNumberOfValues();
+//    for (vtkIdType ix = 0; ix < nf; ix++) {
+//        std::cout << sortedFiles->GetValue(ix) << std::endl;
+//    }
+
+    vtkSmartPointer<vtkDICOMImageReader> reader = vtkSmartPointer<vtkDICOMImageReader>::New();
+    reader->SetDataByteOrderToLittleEndian();
+    reader->SetFileName(sortedFiles->GetValue(nf - 1).c_str());
+    reader->Update();
+    auto mImagePositionPatient = reader->GetImagePositionPatient();
+    auto mImageOrientationPatient = reader->GetImageOrientationPatient();
+
+    vtkHelper::PrintArray3(mImagePositionPatient, "imagePaiteintOritaint");
+    vtkHelper::PrintArray3(mImageOrientationPatient, "imageOrientationPatient");
+
+    for (int i = 0; i < 3; i++) {
+        ImagePositionPatient[i] = mImagePositionPatient[i];
+        ImageOrientationPatient[i] = mImageOrientationPatient[i];
+    }
+    RescaleSlope = reader->GetRescaleSlope();
+    RescaleOffset = reader->GetRescaleOffset();
+    reader->PrintSelf(std::cout, vtkIndent(2));
+
+    vtkHelper::Print2Numbs(RescaleSlope, RescaleOffset, "Rescale");
+    vtkSmartPointer<vtkDICOMReader> DICOMreader = vtkSmartPointer<vtkDICOMReader>::New();
+    DICOMreader->SetDataByteOrderToLittleEndian();
+    DICOMreader->SetMemoryRowOrderToFileNative();
+    DICOMreader->SortingOn();                        //图像排序
+    DICOMreader->SetFileNames(sortedFiles);
+    DICOMreader->Update();
+    ImageProperties = vtkSmartPointer<vtkMedicalImageProperties>::New();
+    ImageProperties->DeepCopy(DICOMreader->GetMedicalImageProperties());
+
+
+    PatientMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+    PatientMatrix->DeepCopy(DICOMreader->GetPatientMatrix());
+    vtkHelper::PrintMatrix4X4(PatientMatrix, "patientMatrix");
+
+
+    auto metadata = DICOMreader->GetMetaData();
+    //(0028,1050) Window Center (WL)：存储窗位的值。
+    WindowCenter = metadata->Get(DC::WindowCenter).AsInt();
+    //(0028,1051) Window Width (WW)：存储窗宽的值。
+    WindowWidth = metadata->Get(DC::WindowWidth).AsInt();
+
+    vtkHelper::Print2Numbs(WindowWidth, WindowCenter, "WW/WC");
+
+
+    m_imageData = vtkSmartPointer<vtkImageData>::New();
+    m_imageData->DeepCopy(DICOMreader->GetOutput());
+    m_imageData->SetOrigin(-mImagePositionPatient[0], -mImagePositionPatient[1], mImagePositionPatient[2]);
+    m_imageData->GetDimensions(this->Dimension);
+    m_imageData->GetSpacing(this->Spacing);
+    m_imageData->GetOrigin(this->Origin);
+    m_imageData->PrintSelf(std::cout, vtkIndent(2));
+
+
 }
