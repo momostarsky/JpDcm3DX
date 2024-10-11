@@ -35,6 +35,14 @@ public:
 
     }
 
+    template<typename T>
+    static void PrintArray6(const T *arr, const char *flagName) {
+        std::cout << flagName << "#: " << arr[0] << "," << arr[1] << "," << arr[2] << ",\n";
+        std::cout << flagName << "#: " << arr[3] << "," << arr[4] << "," << arr[5] << std::endl;
+
+    }
+    static void   SetImageOriginFromDICOMTags(vtkImageData* imageData,
+                                                 const float * imagePositionPatient, const float* imageOrientationPatient);
 
     static vtkImageData *ReaderDicomImagesITKVTK(const char *folder);
 
@@ -46,7 +54,7 @@ private:
     vtkHelper(const vtkHelper &);
 
 
-    void ReaderDicomImagesWithScalar(const char *dirName);
+    static void ReaderDicomImagesWithScalar(const char *dirName);
 };
 
 

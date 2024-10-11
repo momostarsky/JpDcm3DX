@@ -194,7 +194,6 @@ void QtDcmViewer::onLoadDicom() {
             mResliceViewer[i]->GetRenderer()->ResetCamera();
 
 
-
             mResliceViewer[i]->SetSlice(imgDimens[i] / 2);
             auto index = std::to_string(mResliceViewer[i]->GetSlice());
             slicerActor[i]->SetText(vtkCornerAnnotation::LowerRight, index.c_str());
@@ -207,6 +206,7 @@ void QtDcmViewer::onLoadDicom() {
 //        mPlaneRender->AddActor(peopleInforTextActor[3]);
 
         mPlaneRender->ResetCamera();
+
         mPlaneRenderWin->Render();
 
     }

@@ -35,7 +35,44 @@ if (NOT TARGET "Qt5::Widgets")
     return()
 endif ()
 
+##set(Qt6_DIR "/opt/Qt/6.8.0/gcc_64/lib/cmake/Qt6")
+## 设置 Qt6 的根目录
+#set(QT_ROOT "/opt/Qt/6.8.0/gcc_64")
+#
+## 查找 Qt6 版本 6.8.0
+#find_package(Qt6 6.8.0 HINTS "${QT_ROOT}/lib/cmake/Qt6" CONFIG REQUIRED)
+#
+## 输出 Qt 版本信息
+#message(STATUS "Using Qt ${Qt6_VERSION}")
+#
+## 输出 Qt6 的配置信息
+#message(STATUS "Qt6 configuration:")
+#foreach(config_var Qt6_CMAKE_MODULE_PATH Qt6_DIR Qt6_NO_DEFAULT_PATH)
+#    message(STATUS "${config_var}: ${${config_var}}")
+#endforeach()
+#
+## 输出 Qt6 的组件信息
+#if(Qt6_FOUND)
+#    message(STATUS "Qt6 components:")
+#    foreach(component ${Qt6_COMPONENTS})
+#        message(STATUS "Component: ${component}")
+#    endforeach()
+#else()
+#    message(FATAL_ERROR "Qt6 was not found.")
+#endif()
 
+#find_package(Qt6 CONFIG REQUIRED)
+#if(${Qt6_FOUND})
+#    # 输出 Qt 版本信息
+#    message(STATUS "Using Qt6_VERSION ${Qt6_VERSION}")
+#    message(STATUS "Using Qt6_USE_FILE ${Qt6_COMPONENTS}")
+#    message(STATUS "Using Qt6_LIBRARIES ${Qt6_LIBRARIES}")
+#
+#    # 列出所有可用的 Qt6 组件
+#    foreach(component ${Qt6_COMPONENTS})
+#        message(STATUS "Found Qt6 component: ${component}")
+#    endforeach()
+#endif()
 #
 # Teem
 #

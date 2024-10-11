@@ -52,21 +52,19 @@ public:
     [[nodiscard]] vtkSmartPointer<vtkMatrix4x4> GetPatientMatrix() const {
         return PatientMatrix;
     }
+
     [[nodiscard]] vtkSmartPointer<vtkMatrix4x4> GetUserMatrix() const {
-        return userMatrix;
+        return UserMatrix;
     }
+
     [[nodiscard]] vtkSmartPointer<vtkMedicalImageProperties> GetMedicalImageProperties() const {
         return ImageProperties;
     }
 
-private:
-
-    vtkSmartPointer<vtkImageData> m_imageData{};
-
-
+protected:
     /*@
-     * (0028,1050) Window Center (WL)：存储窗位的值。
-     */
+    * (0028,1050) Window Center (WL)：存储窗位的值。
+    */
     double WindowCenter = 0;
     /*@
      * (0028,1051) Window Width (WW)：存储窗宽的值。
@@ -80,10 +78,15 @@ private:
     int Dimension[3] = {0};
     int Extent[6] = {0};
     float ImagePositionPatient[3] = {0};
-    float ImageOrientationPatient[3] = {0};
+    float ImageOrientationPatient[6] = {0};
     vtkSmartPointer<vtkMatrix4x4> PatientMatrix{};
     vtkSmartPointer<vtkMedicalImageProperties> ImageProperties{};
-    vtkSmartPointer<vtkMatrix4x4> userMatrix{};
+    vtkSmartPointer<vtkMatrix4x4> UserMatrix{};
+private:
+
+    vtkSmartPointer<vtkImageData> m_imageData{};
+
+
 };
 
 

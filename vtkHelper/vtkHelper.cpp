@@ -12,7 +12,26 @@
 #include <itkChangeInformationImageFilter.h>
 
 #include "vtkHelper.h"
+void  vtkHelper::SetImageOriginFromDICOMTags(vtkImageData* imageData,
+                                             const float* imagePositionPatient, const float* imageOrientationPatient)
+{
+    // 假设图像的维度是3
+    int imageDimensions[3] = { imageData->GetDimensions()[0], imageData->GetDimensions()[1], imageData->GetDimensions()[2] };
 
+    // 计算原点
+    double origin[3];
+    for (int i = 0; i < 3; ++i)
+    {
+        origin[i] = imagePositionPatient[i];
+        for (int j = 0; j < 3; ++j)
+        {
+            origin[i] += imageOrientationPatient[i * 3 + j] * (imageDimensions[j] / 2.0);
+        }
+    }
+
+    // 设置原点
+    imageData->SetOrigin(origin);
+}
 vtkImageData * vtkHelper::ReaderDicomImagesITKVTK(const char *folder ) {
 
     using PixelType = signed short;

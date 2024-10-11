@@ -193,23 +193,32 @@ void DicomLoader::LoadDicom(const char *path) {
 
     vtkSmartPointer<vtkDICOMImageReader> reader = vtkSmartPointer<vtkDICOMImageReader>::New();
     reader->SetDataByteOrderToLittleEndian();
+
     reader->SetFileName(sortedFiles->GetValue(nf - 1).c_str());
     reader->Update();
     auto mImagePositionPatient = reader->GetImagePositionPatient();
     auto mImageOrientationPatient = reader->GetImageOrientationPatient();
+    auto mSpacing = reader->GetPixelSpacing();
+    vtkHelper::PrintArray3(mSpacing, "GetPixelSpacing");
 
-    vtkHelper::PrintArray3(mImagePositionPatient, "imagePaiteintOritaint");
-    vtkHelper::PrintArray3(mImageOrientationPatient, "imageOrientationPatient");
 
     for (int i = 0; i < 3; i++) {
         ImagePositionPatient[i] = mImagePositionPatient[i];
+        Spacing[i] = mSpacing[i];
+    }
+    for (int i = 0; i < 6; i++) {
         ImageOrientationPatient[i] = mImageOrientationPatient[i];
     }
+    vtkHelper::PrintArray3(ImagePositionPatient, "imagePaiteintOritaint");
+    vtkHelper::PrintArray6(ImageOrientationPatient, "imageOrientationPatient");
+
     RescaleSlope = reader->GetRescaleSlope();
     RescaleOffset = reader->GetRescaleOffset();
     vtkHelper::Print2Numbs(RescaleSlope, RescaleOffset, "Rescale");
     {
         // generate the matrix
+        //https://vtkusers.public.kitware.narkive.com/bg2u5xzm/correct-coordinate-transformations-for-dicom-data-set
+
 
 
         float *xdir = &ImageOrientationPatient[0];
@@ -217,20 +226,20 @@ void DicomLoader::LoadDicom(const char *path) {
         float zdir[3];
         vtkMath::Cross(xdir, ydir, zdir);
 
-        userMatrix =  vtkSmartPointer<vtkMatrix4x4>::New();
-        for (int i = 0; i < 3; i++)
-        {
-            userMatrix->Element[i][0] = xdir[i];
-            userMatrix->Element[i][1] = ydir[i];
-            userMatrix->Element[i][2] = zdir[i];
-            userMatrix->Element[i][3] = ImagePositionPatient[i];
+        UserMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+        for (int i = 0; i < 3; i++) {
+            UserMatrix->Element[i][0] = xdir[i];
+            UserMatrix->Element[i][1] = ydir[i];
+            UserMatrix->Element[i][2] = zdir[i];
+            UserMatrix->Element[i][3] = ImagePositionPatient[i];
         }
-        vtkHelper::PrintMatrix4X4(userMatrix, "userMatrix");
+        vtkHelper::PrintMatrix4X4(UserMatrix, "UserMatrix");
     }
 
     vtkSmartPointer<vtkDICOMReader> DICOMreader = vtkSmartPointer<vtkDICOMReader>::New();
     DICOMreader->SetDataByteOrderToLittleEndian();
     DICOMreader->SetMemoryRowOrderToFileNative();
+
     DICOMreader->SortingOn();                        //图像排序
     DICOMreader->SetFileNames(sortedFiles);
     DICOMreader->Update();
@@ -254,15 +263,31 @@ void DicomLoader::LoadDicom(const char *path) {
 
     m_imageData = vtkSmartPointer<vtkImageData>::New();
     m_imageData->DeepCopy(DICOMreader->GetOutput());
-    m_imageData->SetOrigin(-mImagePositionPatient[0], -mImagePositionPatient[1], mImagePositionPatient[2]);
+    m_imageData->SetSpacing(mSpacing);
+    m_imageData->SetOrigin(ImagePositionPatient[0], ImagePositionPatient[1], ImagePositionPatient[2]);
     m_imageData->GetDimensions(this->Dimension);
     m_imageData->GetSpacing(this->Spacing);
-    m_imageData->GetOrigin(this->Origin);
     m_imageData->GetExtent(this->Extent);
+    m_imageData->GetOrigin(this->Origin);
+// 设置 Direction
+    double directionMatrixElems[9] = {0};
 
+    DICOMreader->GetDataDirection(directionMatrixElems);
 
+//    vtkSmartPointer<vtkMatrix4x4> directionMatrix =  vtkSmartPointer<vtkMatrix4x4>::New();
+//    for (int i = 0; i < 3; ++i) {
+//        for (int j = 0; j < 3; ++j) {
+//            directionMatrix->SetElement(i,j , directionMatrixElems[i*3+j]);
+//        }
+//    }
+    m_imageData->SetDirectionMatrix(directionMatrixElems);
 
-
+     auto bounds = m_imageData->GetBounds();
+     double  orginz[3]={0};
+     for(int i=0;i<3;i++){
+         orginz[i]=bounds[i*2];
+     }
+     vtkHelper::PrintArray3(orginz,"bounds");
 
 
 }
