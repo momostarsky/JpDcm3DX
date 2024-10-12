@@ -3,6 +3,7 @@
 //
 
 #include <itkVTKImageToImageFilter.h>
+#include <vtkDICOMToRAS.h>
 #include "DicomLoader.h"
 #include "../vtkHelper/vtkHelper.h"
 
@@ -260,6 +261,39 @@ void DicomLoader::LoadDicom(const char *path) {
 
     vtkHelper::Print2Numbs(WindowWidth, WindowCenter, "WW/WC");
 
+//// 创建一个新的 vtkImageReslice 对象
+//    vtkSmartPointer<vtkImageReslice> reslice =  vtkSmartPointer<vtkImageReslice>::New();
+//    reslice->SetInputConnection(DICOMreader->GetOutputPort());
+//    reslice->SetOutputDimensionality(3);
+//    reslice->SetInterpolationModeToLinear();
+//
+//
+//    vtkSmartPointer<vtkImageFlip> flipZFilter =
+//            vtkSmartPointer<vtkImageFlip>::New();
+//    flipZFilter->SetInputConnection(reslice->GetOutputPort());
+//    flipZFilter->SetFilteredAxis(1);  // 2 表示 Z 轴
+//    flipZFilter->Update();
+
+
+    // 创建一个变换矩阵来翻转 Y 轴
+//    vtkSmartPointer<vtkMatrix4x4> matrix =  vtkSmartPointer<vtkMatrix4x4>::New();
+//    matrix->Identity();
+//    matrix->SetElement(1, 1, 1);  // 翻转 Y 轴
+//    matrix->SetElement(1, 3, DICOMreader->GetOutput()->GetBounds()[3]);  // 调整原点
+//    reslice->SetResliceAxes(matrix);
+//    reslice->Update();
+
+
+
+//    vtkNew<vtkDICOMToRAS> converter;
+//    converter->SetInputData(DICOMreader->GetOutput());
+//    converter->SetPatientMatrix(PatientMatrix);
+//    converter->SetAllowColumnReordering(true);
+//    converter->SetAllowRowReordering(true );
+//    converter->UpdateMatrix();
+//    vtkMatrix4x4 *matrix = converter->GetRASMatrix();
+//    converter->Update();
+
 
     m_imageData = vtkSmartPointer<vtkImageData>::New();
     m_imageData->DeepCopy(DICOMreader->GetOutput());
@@ -282,12 +316,12 @@ void DicomLoader::LoadDicom(const char *path) {
 //    }
     m_imageData->SetDirectionMatrix(directionMatrixElems);
 
-     auto bounds = m_imageData->GetBounds();
-     double  orginz[3]={0};
-     for(int i=0;i<3;i++){
-         orginz[i]=bounds[i*2];
-     }
-     vtkHelper::PrintArray3(orginz,"bounds");
+    auto bounds = m_imageData->GetBounds();
+    double orginz[3] = {0};
+    for (int i = 0; i < 3; i++) {
+        orginz[i] = bounds[i * 2];
+    }
+    vtkHelper::PrintArray3(orginz, "bounds");
 
 
 }

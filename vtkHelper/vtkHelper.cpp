@@ -32,6 +32,56 @@ void  vtkHelper::SetImageOriginFromDICOMTags(vtkImageData* imageData,
     // 设置原点
     imageData->SetOrigin(origin);
 }
+
+
+void vtkHelper::SetupCamera(vtkCamera* camera, const vtkSmartPointer<vtkMatrix4x4>& patientMatrix, int viewType)
+{
+    double viewRight[3], viewUp[3], viewNormal[3];
+    double position[3], focalPoint[3];
+
+    // 从 PatientMatrix 提取方向向量
+    for (int i = 0; i < 3; ++i)
+    {
+        viewRight[i] = patientMatrix->GetElement(i, 0);
+        viewUp[i] = patientMatrix->GetElement(i, 1);
+        viewNormal[i] = patientMatrix->GetElement(i, 2);
+    }
+
+    // 标准化向量
+    vtkMath::Normalize(viewRight);
+    vtkMath::Normalize(viewUp);
+    vtkMath::Normalize(viewNormal);
+
+    // 设置相机参数，基于视图类型
+    switch (viewType)
+    {
+        case 0: // Axial view
+            vtkMath::Cross(viewRight, viewUp, viewNormal);
+            camera->SetViewUp(viewUp);
+            break;
+        case 1: // Sagittal view
+            vtkMath::Cross(viewNormal, viewUp, viewRight);
+            camera->SetViewUp(viewUp);
+            break;
+        case 2: // Coronal view
+            vtkMath::Cross(viewRight, viewNormal, viewUp);
+            camera->SetViewUp(viewUp);
+            break;
+    }
+
+    // 设置相机位置和焦点
+    double imageCenter[3] = {0, 0, 0}; // 假设图像中心在原点，需要根据实际情况调整
+    for (int i = 0; i < 3; ++i)
+    {
+        focalPoint[i] = imageCenter[i];
+        position[i] = focalPoint[i] + viewNormal[i] * 1000; // 假设相机距离为1000，需要根据实际情况调整
+    }
+
+    camera->SetPosition(position);
+    camera->SetFocalPoint(focalPoint);
+}
+
+
 vtkImageData * vtkHelper::ReaderDicomImagesITKVTK(const char *folder ) {
 
     using PixelType = signed short;

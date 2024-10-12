@@ -5,6 +5,7 @@
 // You may need to build the project (run Qt uic code generator) to get "ui_QtDcmViewer.h" resolved
 
 #include <QPushButton>
+#include <vtkDICOMToRAS.h>
 #include "QtDcmViewer.h"
 #include "ui_QtDcmViewer.h"
 #include "vtkHelper/vtkHelper.h"
@@ -30,6 +31,8 @@ void QtDcmViewer::Init() {
         mResliceViewer[i] = vtkSmartPointer<vtkResliceImageViewer>::New();
         mResliceRenderWin[i] = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
         mResliceViewer[i]->SetRenderWindow(mResliceRenderWin[i]);
+        callback[i] = vtkSmartPointer<vtkSliceCallback>::New();
+        mFlipFilter[i] = vtkSmartPointer<vtkImageFlip>::New();
     }
     mPlanePicker = vtkSmartPointer<vtkCellPicker>::New();
     mPlanePicker->SetTolerance(0.005);
@@ -150,6 +153,8 @@ void QtDcmViewer::onLoadDicom() {
 
     {
         dicomLoader->LoadDicom("/home/dhz/v4486");
+
+
         auto imgDimens = dicomLoader->GetDimension();
         auto spacing = dicomLoader->GetSpacing();
         auto orign = dicomLoader->GetOrigin();
@@ -162,13 +167,24 @@ void QtDcmViewer::onLoadDicom() {
                     mResliceViewer[i]->GetResliceCursorWidget()->GetRepresentation());
             rep->GetResliceCursorActor()->
                     GetCursorAlgorithm()->SetReslicePlaneNormal(i);
-//            mResliceViewer[i]->GetRenderer()->AddActor2D(textActor[i]);
+
             mResliceViewer[i]->GetRenderer()->AddViewProp(cornerActor[i]);
             mResliceViewer[i]->GetRenderer()->AddViewProp(slicerActor[i]);
-//            mResliceViewer[i]->GetRenderer()->AddActor(peopleInforTextActor[i]);
+
+//            mFlipFilter[i]->SetInputData(dicomLoader->GetImageData());
+//            if(i == 1){
+//                mFlipFilter[i]->SetFilteredAxis(1);
+//            }
+//            if(i == 2 ){
+//
+//                mFlipFilter[i]->SetFilteredAxis(1);  // 1 表示 Y 轴
+//
+//            }
             mResliceViewer[i]->SetInputData(dicomLoader->GetImageData());
             mResliceViewer[i]->SetSliceOrientation(i);
             mResliceViewer[i]->SetResliceModeToAxisAligned();
+
+
         }
 
         for (int i = 0; i < 3; ++i) {
@@ -179,7 +195,7 @@ void QtDcmViewer::onLoadDicom() {
             mPlaneWidget[i]->SetPlaneOrientation(i);
             mPlaneWidget[i]->SetSliceIndex(imgDimens[i] / 2);
             mPlaneWidget[i]->DisplayTextOff();
-            mPlaneWidget[i]->SetWindowLevel(dicomLoader->GetColorWindow(), dicomLoader->GetColorLevel());
+            mPlaneWidget[i]->SetWindowLevel(1500, 300);
             mPlaneWidget[i]->On();
             mPlaneWidget[i]->InteractionOn();
         }
@@ -194,10 +210,19 @@ void QtDcmViewer::onLoadDicom() {
             mResliceViewer[i]->GetRenderer()->ResetCamera();
 
 
-            mResliceViewer[i]->SetSlice(imgDimens[i] / 2);
+            mResliceViewer[i]->SetSlice((imgDimens[i] / 2) + 1);
             auto index = std::to_string(mResliceViewer[i]->GetSlice());
             slicerActor[i]->SetText(vtkCornerAnnotation::LowerRight, index.c_str());
 
+
+            // 添加观察者来处理 SliceIndexChanged 事件
+
+
+            callback[i]->SetAnnotation(slicerActor[i]);
+            mResliceViewer[i]->AddObserver(vtkResliceImageViewer::SliceChangedEvent, callback[i]);
+            mResliceViewer[i]->GetRenderer()->ResetCamera();
+//            vtkCamera *camera = mResliceViewer[i]->GetRenderer()->GetActiveCamera();
+//            vtkHelper::SetupCamera(camera, dicomLoader->GetPatientMatrix(), i);
             mResliceRenderWin[i]->Render();
         }
 

@@ -41,10 +41,14 @@ public:
         std::cout << flagName << "#: " << arr[3] << "," << arr[4] << "," << arr[5] << std::endl;
 
     }
-    static void   SetImageOriginFromDICOMTags(vtkImageData* imageData,
-                                                 const float * imagePositionPatient, const float* imageOrientationPatient);
+
+    static void SetImageOriginFromDICOMTags(vtkImageData *imageData,
+                                            const float *imagePositionPatient, const float *imageOrientationPatient);
 
     static vtkImageData *ReaderDicomImagesITKVTK(const char *folder);
+
+    static void   SetupCamera(vtkCamera* camera, const vtkSmartPointer<vtkMatrix4x4> &patientMatrix,
+                int viewType);
 
 private:
     vtkHelper() = default;
@@ -55,6 +59,8 @@ private:
 
 
     static void ReaderDicomImagesWithScalar(const char *dirName);
+
+
 };
 
 

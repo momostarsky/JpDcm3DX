@@ -34,7 +34,12 @@ if (NOT TARGET "Qt5::Widgets")
     message("Skipping example: ${Qt5_NOT_FOUND_MESSAGE}")
     return()
 endif ()
-
+#set(Qt6_DIR "/opt/Qt/6.8.0/gcc_64/lib/cmake/Qt6")
+#find_package(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
+#if (${Qt6_FOUND})
+#    message(STATUS "Qt6_FOUND: ${Qt6_FOUND}")
+#    message(STATUS "Qt6_VERSION: ${Qt6_VERSION}")
+#endif()
 ##set(Qt6_DIR "/opt/Qt/6.8.0/gcc_64/lib/cmake/Qt6")
 ## 设置 Qt6 的根目录
 #set(QT_ROOT "/opt/Qt/6.8.0/gcc_64")
@@ -127,6 +132,7 @@ set(SRCS ViewerApp.cxx
         QtDcmViewer.ui
         DicomLoader.cpp
         DicomLoader.h
+        vtkSliceCallback.h
 
 )
 

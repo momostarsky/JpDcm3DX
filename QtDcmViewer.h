@@ -8,7 +8,7 @@
 #include <QMainWindow>
 #include "../BaseHeader.h"
 #include "DicomLoader.h"
-
+#include "vtkSliceCallback.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class QtDcmViewer; }
 QT_END_NAMESPACE
@@ -32,7 +32,7 @@ protected:
     vtkSmartPointer<vtkResliceImageViewer> mResliceViewer[3];
     vtkSmartPointer<vtkCornerAnnotation> slicerActor[3];
     vtkSmartPointer<vtkRenderWindow> mResliceRenderWin[3];
-
+    vtkSmartPointer<vtkImageFlip>    mFlipFilter[3];
     vtkSmartPointer<vtkCellPicker> mPlanePicker;
     vtkSmartPointer<vtkImagePlaneWidget> mPlaneWidget[3];
     vtkSmartPointer<vtkRenderWindow> mPlaneRenderWin;
@@ -44,7 +44,7 @@ protected:
 //    vtkSmartPointer<vtkTextActor> textActor[4];
     vtkSmartPointer<vtkCornerAnnotation> cornerActor[4];
 //    vtkSmartPointer<vtkTextActor> peopleInforTextActor[4];
-
+    vtkSmartPointer<vtkSliceCallback> callback[3];
 
 private:
     Ui::QtDcmViewer *ui;
