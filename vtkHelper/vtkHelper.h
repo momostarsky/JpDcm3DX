@@ -47,8 +47,14 @@ public:
 
     static vtkImageData *ReaderDicomImagesITKVTK(const char *folder);
 
-    static void   SetupCamera(vtkCamera* camera, const vtkSmartPointer<vtkMatrix4x4> &patientMatrix,
-                int viewType);
+    static void SetupCamera(vtkCamera *camera, const vtkSmartPointer<vtkMatrix4x4> &patientMatrix,
+                            int viewType);
+    typedef int ViewType;
+    static constexpr ViewType Saggital = 0;
+    static constexpr ViewType Coronal = 1;
+    static constexpr ViewType Axial = 2;
+    static constexpr ViewType ThreeD = 3;
+
 
 private:
     vtkHelper() = default;

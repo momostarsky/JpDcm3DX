@@ -66,10 +66,10 @@ void QtDcmViewer::Init() {
         i->GetTextProperty()->SetColor(1.0, 0.72, 0.0);
 
     }
-    cornerActor[0]->SetText(vtkCornerAnnotation::LowerLeft, u8"Sagittal");
-    cornerActor[1]->SetText(vtkCornerAnnotation::LowerLeft, u8"Coronal");
-    cornerActor[2]->SetText(vtkCornerAnnotation::LowerLeft, u8"Axial");
-    cornerActor[3]->SetText(vtkCornerAnnotation::LowerLeft, u8"3D");
+    cornerActor[vtkHelper::Saggital]->SetText(vtkCornerAnnotation::LowerLeft, u8"Sagittal");
+    cornerActor[vtkHelper::Coronal]->SetText(vtkCornerAnnotation::LowerLeft, u8"Coronal");
+    cornerActor[vtkHelper::Axial]->SetText(vtkCornerAnnotation::LowerLeft, u8"Axial");
+    cornerActor[vtkHelper::ThreeD]->SetText(vtkCornerAnnotation::LowerLeft, u8"3D");
 
     for (auto &i: slicerActor) {
         i = vtkSmartPointer<vtkCornerAnnotation>::New();
@@ -152,8 +152,17 @@ void QtDcmViewer::onLoadDicom() {
 
 
     {
-        dicomLoader->LoadDicom("/home/dhz/v4486");
+        dicomLoader->LoadDicomWithITK("/home/dhz/v4486");
 
+        for (int i = 0; i < 3; i++) {
+            if (i == vtkHelper::Axial) {
+                mFlipFilter[i]->SetFilteredAxes(1);
+            } else {
+                mFlipFilter[i]->SetFilteredAxes(2);
+            }
+            mFlipFilter[i]->SetInputData(dicomLoader->GetImageData());
+            mFlipFilter[i]->Update();
+        }
 
         auto imgDimens = dicomLoader->GetDimension();
         auto spacing = dicomLoader->GetSpacing();
@@ -170,28 +179,27 @@ void QtDcmViewer::onLoadDicom() {
 
             mResliceViewer[i]->GetRenderer()->AddViewProp(cornerActor[i]);
             mResliceViewer[i]->GetRenderer()->AddViewProp(slicerActor[i]);
-
-//            mFlipFilter[i]->SetInputData(dicomLoader->GetImageData());
-//            if(i == 1){
-//                mFlipFilter[i]->SetFilteredAxis(1);
-//            }
-//            if(i == 2 ){
-//
-//                mFlipFilter[i]->SetFilteredAxis(1);  // 1 表示 Y 轴
-//
-//            }
-            mResliceViewer[i]->SetInputData(dicomLoader->GetImageData());
+            mResliceViewer[i]->SetInputData(mFlipFilter[i]->GetOutput());
             mResliceViewer[i]->SetSliceOrientation(i);
             mResliceViewer[i]->SetResliceModeToAxisAligned();
+            mResliceViewer[i]->GetRenderer()->ResetCamera();
 
 
         }
 
         for (int i = 0; i < 3; ++i) {
+
+//            if(i ==  vtkHelper::Axial){
+//                mFlipFilter[i]->SetFilteredAxes(1);
+//            } else   {
+//                mFlipFilter[i]->SetFilteredAxes(2);
+//            }
+
+
             mPlaneWidget[i]->RestrictPlaneToVolumeOn();
             mPlaneWidget[i]->TextureInterpolateOff();
             mPlaneWidget[i]->SetResliceInterpolateToLinear();
-            mPlaneWidget[i]->SetInputData(dicomLoader->GetImageData());
+            mPlaneWidget[i]->SetInputData(mFlipFilter[i]->GetOutput());
             mPlaneWidget[i]->SetPlaneOrientation(i);
             mPlaneWidget[i]->SetSliceIndex(imgDimens[i] / 2);
             mPlaneWidget[i]->DisplayTextOff();
@@ -214,22 +222,16 @@ void QtDcmViewer::onLoadDicom() {
             auto index = std::to_string(mResliceViewer[i]->GetSlice());
             slicerActor[i]->SetText(vtkCornerAnnotation::LowerRight, index.c_str());
 
-
-            // 添加观察者来处理 SliceIndexChanged 事件
-
-
             callback[i]->SetAnnotation(slicerActor[i]);
             mResliceViewer[i]->AddObserver(vtkResliceImageViewer::SliceChangedEvent, callback[i]);
             mResliceViewer[i]->GetRenderer()->ResetCamera();
-//            vtkCamera *camera = mResliceViewer[i]->GetRenderer()->GetActiveCamera();
-//            vtkHelper::SetupCamera(camera, dicomLoader->GetPatientMatrix(), i);
+
+
             mResliceRenderWin[i]->Render();
         }
 
 
         mPlaneRender->AddViewProp(cornerActor[3]);
-//        mPlaneRender->AddActor(peopleInforTextActor[3]);
-
         mPlaneRender->ResetCamera();
 
         mPlaneRenderWin->Render();
