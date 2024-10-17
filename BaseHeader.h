@@ -88,7 +88,7 @@
 #include  <vtkCornerAnnotation.h>
 #include  <vtkMedicalImageProperties.h>
 #include  <vtkCamera.h>
-
+#include  <vtkImageCast.h>
 #include  <itkImage.h>
 #include  <itkGDCMImageIO.h>
 #include  <itkGDCMSeriesFileNames.h>

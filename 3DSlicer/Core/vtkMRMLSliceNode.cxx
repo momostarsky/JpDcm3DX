@@ -312,7 +312,7 @@ const char* vtkMRMLSliceNode::GetOrientationString()
 //----------------------------------------------------------------------------
 bool vtkMRMLSliceNode::SetOrientationToAxial()
 {
-  return this->SetOrientation("Axial");
+  return this->SetOrientation("SLICE_ORIENTATION_XY_Axial");
 }
 
 //----------------------------------------------------------------------------
@@ -324,7 +324,7 @@ bool vtkMRMLSliceNode::SetOrientationToSagittal()
 //----------------------------------------------------------------------------
 bool vtkMRMLSliceNode::SetOrientationToCoronal()
 {
-  return this->SetOrientation("Coronal");
+  return this->SetOrientation("SLICE_ORIENTATION_XZ_Coronal");
 }
 
 //----------------------------------------------------------------------------
@@ -646,9 +646,9 @@ void vtkMRMLSliceNode::AddDefaultSliceOrientationPresets(vtkMRMLScene* scene, bo
     scene->AddDefaultNode(defaultNode);
     }
   vtkMRMLSliceNode * defaultSliceNode = vtkMRMLSliceNode::SafeDownCast(defaultNode);
-  defaultSliceNode->AddSliceOrientationPreset("Axial", axialSliceToRAS);
+  defaultSliceNode->AddSliceOrientationPreset("SLICE_ORIENTATION_XY_Axial", axialSliceToRAS);
   defaultSliceNode->AddSliceOrientationPreset("Sagittal", sagittalSliceToRAS);
-  defaultSliceNode->AddSliceOrientationPreset("Coronal", coronalSliceToRAS);
+  defaultSliceNode->AddSliceOrientationPreset("SLICE_ORIENTATION_XZ_Coronal", coronalSliceToRAS);
 }
 
 //----------------------------------------------------------------------------
@@ -693,7 +693,7 @@ void vtkMRMLSliceNode::SetSliceToRASByNTP (double Nx, double Ny, double Nz,
 
     switch (Orientation)
     {
-        // para-Axial
+        // para-SLICE_ORIENTATION_XY_Axial
         case 0:
             // N
             this->SliceToRAS->SetElement(0, 2, n[0]);
@@ -729,7 +729,7 @@ void vtkMRMLSliceNode::SetSliceToRASByNTP (double Nx, double Ny, double Nz,
 
             break;
 
-        // para-Coronal
+        // para-SLICE_ORIENTATION_XZ_Coronal
         case 2:
             // C
             this->SliceToRAS->SetElement(0, 2, c[0]);
@@ -790,7 +790,7 @@ void vtkMRMLSliceNode::UpdateMatrices()
     }
 
     // the mapping from slice plane coordinates to RAS
-    // (the Orientation as in Axial, Sagittal, Coronal)
+    // (the Orientation as in SLICE_ORIENTATION_XY_Axial, Sagittal, SLICE_ORIENTATION_XZ_Coronal)
     //
     // The combined transform:
     //

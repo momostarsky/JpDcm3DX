@@ -66,9 +66,9 @@ void QtDcmViewer::Init() {
         i->GetTextProperty()->SetColor(1.0, 0.72, 0.0);
 
     }
-    cornerActor[vtkHelper::Saggital]->SetText(vtkCornerAnnotation::LowerLeft, u8"Sagittal");
-    cornerActor[vtkHelper::Coronal]->SetText(vtkCornerAnnotation::LowerLeft, u8"Coronal");
-    cornerActor[vtkHelper::Axial]->SetText(vtkCornerAnnotation::LowerLeft, u8"Axial");
+    cornerActor[vtkHelper::SLICE_ORIENTATION_YZ_Sagittal]->SetText(vtkCornerAnnotation::LowerLeft, u8"SLICE_ORIENTATION_YZ_Sagittal");
+    cornerActor[vtkHelper::SLICE_ORIENTATION_XZ_Coronal]->SetText(vtkCornerAnnotation::LowerLeft, u8"SLICE_ORIENTATION_XZ_Coronal");
+    cornerActor[vtkHelper::SLICE_ORIENTATION_XY_Axial]->SetText(vtkCornerAnnotation::LowerLeft, u8"SLICE_ORIENTATION_XY_Axial");
     cornerActor[vtkHelper::ThreeD]->SetText(vtkCornerAnnotation::LowerLeft, u8"3D");
 
     for (auto &i: slicerActor) {
@@ -92,9 +92,9 @@ void QtDcmViewer::Init() {
 //    }
 //    textActor[0]->SetInput(u8"Sagittal-矢状位");
 //    textActor[0]->GetTextProperty()->SetColor(1.0, 1.0, 1.0);
-//    textActor[1]->SetInput(u8"Coronal-冠状位");
+//    textActor[1]->SetInput(u8"SLICE_ORIENTATION_XZ_Coronal-冠状位");
 //    textActor[1]->GetTextProperty()->SetColor(1.0, 1.0, 1.0);
-//    textActor[2]->SetInput(u8"Axial-轴状位（横截面）");
+//    textActor[2]->SetInput(u8"SLICE_ORIENTATION_XY_Axial-轴状位（横截面）");
 //    textActor[2]->GetTextProperty()->SetColor(1.0, 1.0, 1.0);
 //    textActor[3]->SetInput(u8"3D");
 //    textActor[3]->GetTextProperty()->SetColor(1.0, 1.0, 1.0);
@@ -154,15 +154,15 @@ void QtDcmViewer::onLoadDicom() {
     {
         dicomLoader->LoadDicomWithITK("/home/dhz/v4486");
 
-        for (int i = 0; i < 3; i++) {
-            if (i == vtkHelper::Axial) {
-                mFlipFilter[i]->SetFilteredAxes(1);
-            } else {
-                mFlipFilter[i]->SetFilteredAxes(2);
-            }
-            mFlipFilter[i]->SetInputData(dicomLoader->GetImageData());
-            mFlipFilter[i]->Update();
-        }
+//        for (int i = 0; i < 3; i++) {
+////            if (i == vtkHelper::SLICE_ORIENTATION_XY_Axial) {
+////                mFlipFilter[i]->SetFilteredAxes(1);
+////            } else {
+////                mFlipFilter[i]->SetFilteredAxes(2);
+////            }
+//            mFlipFilter[i]->SetInputData(dicomLoader->GetImageData());
+//            mFlipFilter[i]->Update();
+//        }
 
         auto imgDimens = dicomLoader->GetDimension();
         auto spacing = dicomLoader->GetSpacing();
@@ -170,6 +170,7 @@ void QtDcmViewer::onLoadDicom() {
         vtkHelper::PrintArray3(imgDimens, "Dimension");
         vtkHelper::PrintArray3(spacing, "Spacing");
         vtkHelper::PrintArray3(orign, "Origin");
+        auto imageData = dicomLoader->GetImageData();
         //---------------readDicomData
         for (int i = 0; i < 3; ++i) {
             auto rep = vtkResliceCursorLineRepresentation::SafeDownCast(
@@ -179,17 +180,37 @@ void QtDcmViewer::onLoadDicom() {
 
             mResliceViewer[i]->GetRenderer()->AddViewProp(cornerActor[i]);
             mResliceViewer[i]->GetRenderer()->AddViewProp(slicerActor[i]);
-            mResliceViewer[i]->SetInputData(mFlipFilter[i]->GetOutput());
+            mResliceViewer[i]->SetInputData( imageData );
             mResliceViewer[i]->SetSliceOrientation(i);
             mResliceViewer[i]->SetResliceModeToAxisAligned();
             mResliceViewer[i]->GetRenderer()->ResetCamera();
-
+            vtkCamera* cam = mResliceViewer[i]->GetRenderer()->GetActiveCamera()  ;
+            if(cam)
+            {
+                switch ( mResliceViewer[i]->GetSliceOrientation()) {
+                    case  vtkHelper::SLICE_ORIENTATION_XY_Axial:
+                        cam->SetFocalPoint(0,0,0);
+                        cam->SetPosition(0,0,1);
+                        cam->SetViewUp(0,1,0);
+                        break;
+                    case vtkHelper::SLICE_ORIENTATION_XZ_Coronal:
+                        cam->SetFocalPoint(0,0,0);
+                        cam->SetPosition(0,1,0);
+                        cam->SetViewUp(0,0,-1);
+                        break;
+                    case vtkHelper::SLICE_ORIENTATION_YZ_Sagittal:
+                        cam->SetFocalPoint(0,0,0);
+                        cam->SetPosition(1,0,0);
+                        cam->SetViewUp(0,0,-1);
+                        break;
+                }
+            }
 
         }
 
         for (int i = 0; i < 3; ++i) {
 
-//            if(i ==  vtkHelper::Axial){
+//            if(i ==  vtkHelper::SLICE_ORIENTATION_XY_Axial){
 //                mFlipFilter[i]->SetFilteredAxes(1);
 //            } else   {
 //                mFlipFilter[i]->SetFilteredAxes(2);
@@ -199,7 +220,7 @@ void QtDcmViewer::onLoadDicom() {
             mPlaneWidget[i]->RestrictPlaneToVolumeOn();
             mPlaneWidget[i]->TextureInterpolateOff();
             mPlaneWidget[i]->SetResliceInterpolateToLinear();
-            mPlaneWidget[i]->SetInputData(mFlipFilter[i]->GetOutput());
+            mPlaneWidget[i]->SetInputData( imageData );
             mPlaneWidget[i]->SetPlaneOrientation(i);
             mPlaneWidget[i]->SetSliceIndex(imgDimens[i] / 2);
             mPlaneWidget[i]->DisplayTextOff();

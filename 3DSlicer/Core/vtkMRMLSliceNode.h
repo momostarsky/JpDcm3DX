@@ -35,8 +35,8 @@ class VTK_MRML_EXPORT vtkMRMLSliceNode : public vtkMRMLAbstractViewNode
   /// \brief Instantiate a new Slice node without any orientation presets.
   ///
   /// \note To instantiate a vtkMRMLSliceNode with preconfigured
-  /// orientation preset matrices (the default presets are: Axial,
-  /// Sagittal and Coronal in default), it is necessary to use
+  /// orientation preset matrices (the default presets are: SLICE_ORIENTATION_XY_Axial,
+  /// Sagittal and SLICE_ORIENTATION_XZ_Coronal in default), it is necessary to use
   /// vtkMRMLScene::CreateNodeByClass(const char*)
   static vtkMRMLSliceNode *New();
   vtkTypeMacro(vtkMRMLSliceNode,vtkMRMLAbstractViewNode);
@@ -230,7 +230,7 @@ public:
   /// known orientations.
   static const char* GetReformatOrientationName() { return "Reformat"; }
 
-  /// \brief Initialize \a orientationMatrix as an `Axial` orientation matrix.
+  /// \brief Initialize \a orientationMatrix as an `SLICE_ORIENTATION_XY_Axial` orientation matrix.
   /// \param patientRightIsScreenLeft chooses between radiology (default, patient right is left side on the screen)
   /// and neurology (patient right is right side on the screen) view orientation conventions.
   static void GetAxialSliceToRASMatrix(vtkMatrix3x3* orientationMatrix, bool patientRightIsScreenLeft=true);
@@ -240,7 +240,7 @@ public:
   /// and neurology (patient right is right side on the screen) view orientation conventions.
   static void GetSagittalSliceToRASMatrix(vtkMatrix3x3* orientationMatrix, bool patientRightIsScreenLeft=true);
 
-  /// \brief Initialize \a orientationMatrix as a `Coronal` orientation matrix.
+  /// \brief Initialize \a orientationMatrix as a `SLICE_ORIENTATION_XZ_Coronal` orientation matrix.
   /// \param patientRightIsScreenLeft chooses between radiology (default, patient right is left side on the screen)
   /// and neurology (patient right is right side on the screen) view orientation conventions.
   static void GetCoronalSliceToRASMatrix(vtkMatrix3x3* orientationMatrix, bool patientRightIsScreenLeft=true);

@@ -55,7 +55,7 @@ void vtkHelper::SetupCamera(vtkCamera* camera, const vtkSmartPointer<vtkMatrix4x
     // 设置相机参数，基于视图类型
     switch (viewType)
     {
-        case 0: // Axial view
+        case 0: // SLICE_ORIENTATION_XY_Axial view
             vtkMath::Cross(viewRight, viewUp, viewNormal);
             camera->SetViewUp(viewUp);
             break;
@@ -63,7 +63,7 @@ void vtkHelper::SetupCamera(vtkCamera* camera, const vtkSmartPointer<vtkMatrix4x
             vtkMath::Cross(viewNormal, viewUp, viewRight);
             camera->SetViewUp(viewUp);
             break;
-        case 2: // Coronal view
+        case 2: // SLICE_ORIENTATION_XZ_Coronal view
             vtkMath::Cross(viewRight, viewNormal, viewUp);
             camera->SetViewUp(viewUp);
             break;

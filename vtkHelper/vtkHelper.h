@@ -11,6 +11,33 @@
 class vtkHelper {
 
 public:
+
+    //轴状面
+    static constexpr double Mpr_Axial[16] = {
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1};
+    //冠状面
+    static constexpr double Mpr_Coronal[16] = {
+            1, 0, 0, 0,
+            0, 0, -1, 0,
+            0, 1, 0, 0,
+            0, 0, 0, 1};
+    //矢状面
+    static constexpr double Mpr_Sagittal[16] = {
+            0, 0, 1, 0,
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 0, 1};
+
+//    ————————————————
+//
+//    版权声明：本文为博主原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接和本声明。
+//
+//    原文链接：https://blog.csdn.net/q610098308/article/details/128796964
+
+
     // 打印 vtkMatrix4x4 类型的矩阵
     static void PrintMatrix4X4(const vtkMatrix4x4 *matrix4X4, const char *flagName) {
         vtkLogF(INFO, "Begin %s#", flagName);
@@ -49,11 +76,12 @@ public:
 
     static void SetupCamera(vtkCamera *camera, const vtkSmartPointer<vtkMatrix4x4> &patientMatrix,
                             int viewType);
-    typedef int ViewType;
-    static constexpr ViewType Saggital = 0;
-    static constexpr ViewType Coronal = 1;
-    static constexpr ViewType Axial = 2;
-    static constexpr ViewType ThreeD = 3;
+
+
+    static constexpr int  SLICE_ORIENTATION_YZ_Sagittal = 0;
+    static constexpr int  SLICE_ORIENTATION_XZ_Coronal = 1;
+    static constexpr int  SLICE_ORIENTATION_XY_Axial = 2;
+    static constexpr int  ThreeD = 3;
 
 
 private:

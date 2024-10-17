@@ -263,12 +263,7 @@
     <inspection_tool class="IfStatementWithTooManyBranchesJS" enabled="false" level="WARNING" enabled_by_default="false">
       <option name="m_limit" value="3" />
     </inspection_tool>
-    <inspection_tool class="IgnoreCoverEntry" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="IgnoreDuplicateEntry" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="IgnoreFileDuplicateEntry" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="IgnoreIncorrectEntry" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="IgnoreRelativeEntry" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="IgnoreSyntaxEntry" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="IllegalJobDependency" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="ImplicitTypeConversion" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="BITS" value="1720" />

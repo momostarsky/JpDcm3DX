@@ -529,8 +529,8 @@ bool vtkMRMLVolumeNode::ComputeIJKToRASFromScanOrder(const char *order,
   orientMat->Identity();
 
   if (!strcmp(order,"IS") ||
-      !strcmp(order,"Axial IS") ||
-      !strcmp(order,  "Axial"))
+      !strcmp(order,"SLICE_ORIENTATION_XY_Axial IS") ||
+      !strcmp(order,  "SLICE_ORIENTATION_XY_Axial"))
     {
     const double elems[] = { -1,  0,  0,  0,
                         0, -1,  0,  0,
@@ -539,7 +539,7 @@ bool vtkMRMLVolumeNode::ComputeIJKToRASFromScanOrder(const char *order,
     orientMat->DeepCopy(elems);
     }
   else if (!strcmp(order,"SI") ||
-           !strcmp(order,"Axial SI"))
+           !strcmp(order,"SLICE_ORIENTATION_XY_Axial SI"))
     {
     const double elems[] = { -1,  0,  0,  0,
                         0, -1,  0,  0,
@@ -567,8 +567,8 @@ bool vtkMRMLVolumeNode::ComputeIJKToRASFromScanOrder(const char *order,
     orientMat->DeepCopy(elems);
     }
   else if (!strcmp(order,"PA") ||
-      !strcmp(order,"Coronal PA") ||
-      !strcmp(order,  "Coronal"))
+      !strcmp(order,"SLICE_ORIENTATION_XZ_Coronal PA") ||
+      !strcmp(order,  "SLICE_ORIENTATION_XZ_Coronal"))
     {
     const double elems[] = { -1,  0,  0,  0,
                         0,  0,  1,  0,
@@ -577,7 +577,7 @@ bool vtkMRMLVolumeNode::ComputeIJKToRASFromScanOrder(const char *order,
     orientMat->DeepCopy(elems);
     }
   else if (!strcmp(order,"AP") ||
-      !strcmp(order,"Coronal AP") )
+      !strcmp(order,"SLICE_ORIENTATION_XZ_Coronal AP") )
     {
     const double elems[] = { -1,  0,  0,  0,
                         0,  0, -1,  0,

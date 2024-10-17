@@ -61,6 +61,7 @@ public:
         return ImageProperties;
     }
 
+
 protected:
     /*@
     * (0028,1050) Window Center (WL)：存储窗位的值。

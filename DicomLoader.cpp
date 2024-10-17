@@ -97,10 +97,17 @@ void DicomLoader::LoadDicomWithITK(const char *path) {
     reader->Update();
     reader->PrintSelf(std::cout , vtkIndent(2));
 
+    vtkSmartPointer<vtkImageFlip> flipFilter = vtkSmartPointer<vtkImageFlip>::New();
+    flipFilter->SetInputData(reader->GetOutput());
+    flipFilter->SetFilteredAxes(1);  // 假设我们只需要在一个轴上翻转
+    flipFilter->Update();
+
+
+
     m_imageData = vtkSmartPointer<vtkImageData>::New();
-    m_imageData->DeepCopy(reader->GetOutput());
+    m_imageData->DeepCopy(flipFilter->GetOutput());
     m_imageData->SetSpacing(mSpacing);
-    m_imageData->SetOrigin(-ImagePositionPatient[0], -ImagePositionPatient[1],  ImagePositionPatient[2]);
+    m_imageData->SetOrigin(ImagePositionPatient[0], ImagePositionPatient[1],  ImagePositionPatient[2]);
     m_imageData->GetDimensions(this->Dimension);
     m_imageData->GetSpacing(this->Spacing);
     m_imageData->GetExtent(this->Extent);
